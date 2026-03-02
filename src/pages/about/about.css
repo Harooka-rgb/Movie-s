@@ -1,0 +1,30 @@
+.about-container {
+  padding: 40px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  background: #fdfdfd;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  font-family: sans-serif;
+}
+
+.about-container h1 {
+  margin-bottom: 16px;
+  color: #1890ff;
+}
+
+.about-container p {
+  line-height: 1.6;
+  color: #333;
+}
+
+.about-card {
+  margin-top: 24px;
+  padding: 20px;
+  background: #fafafa;
+  border-left: 4px solid #1890ff;
+}
+
+.about-card h2 {
+  margin-bottom: 8px;
+}

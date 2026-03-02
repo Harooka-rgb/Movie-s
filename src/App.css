@@ -1,0 +1,24 @@
+:root {
+	--bg: #000000;
+	--card-bg: #111111; /* чуть светлее, не полностью чёрный */
+	--accent: #e50914;
+	--muted: #9a9a9a;
+}
+
+html, body {
+	height: 100%;
+	background: var(--bg);
+}
+
+body {
+	color: #fff;
+	margin: 0;
+}
+
+.app-container {
+	min-height: 100vh;
+	background: var(--bg);
+}
+
+
+
