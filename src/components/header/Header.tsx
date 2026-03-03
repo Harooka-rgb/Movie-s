@@ -1,7 +1,8 @@
 import React from 'react';
 import { Layout, Menu, Button, Space, Avatar, Typography } from 'antd';
-import { UserOutlined, MenuOutlined } from '@ant-design/icons';
-import {Link, NavLink} from "react-router-dom";
+import { UserOutlined } from '@ant-design/icons';
+import { Link, NavLink } from "react-router-dom";
+import SearchBar from '../search/SearchBar';
 
 const { Header } = Layout;
 const { Text } = Typography;
@@ -20,12 +21,13 @@ const menuItems = [
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
+      gap: '20px',
       backgroundColor: 'var(--bg)',
       padding: '0 20px',
       borderBottom: '1px solid rgba(255,255,255,0.04)'
     }}>
       {/* Логотип бөлүгү */}
-      <div className="logo" style={{ display: 'flex', alignItems: 'center' }}>
+      <div className="logo" style={{ display: 'flex', alignItems: 'center', minWidth: '150px' }}>
         <div style={{
           width: 44, height: 28, background: 'var(--accent)', borderRadius: '4px', marginRight: '12px'
         }} />
@@ -39,6 +41,11 @@ const menuItems = [
         items={menuItems}
         style={{ flex: 1, minWidth: 0, justifyContent: 'center', borderBottom: 'none', backgroundColor: 'var(--bg)' }}
       />
+
+      {/* Поисковик */}
+      <div style={{ minWidth: '250px' }}>
+        <SearchBar />
+      </div>
 
       {/* Оң жактагы баскычтар жана Профиль */}
       <Space size="middle">

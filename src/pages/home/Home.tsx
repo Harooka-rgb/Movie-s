@@ -1,15 +1,18 @@
 import HomeBanner from "../../components/home-banner/HomeBanner"
-import { Card, Rate, Typography, Space } from 'antd';
+import { Card, Rate, Typography } from 'antd';
 import { PlayCircleFilled } from '@ant-design/icons';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import TrailerModal from "../../components/trailer-modal/TrailerModal";
+import './home.css';
 
 // Импорт стилей Swiper
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { IMAGE_BASE_URL } from "../../constants"
+import { IMAGE_BASE_URL, API_BASE_URL, API_KEY } from "../../constants"
 
 const { Title, Text } = Typography;
 
@@ -21,6 +24,17 @@ interface MovieData {
   media_type: string;
   original_language: string;
   genre_ids: number[];
+  release_date?: string;
+  vote_average?: number;
+  vote_count?: number;
+}
+
+interface Video {
+  id: string;
+  key: string;
+  name: string;
+  type: string;
+  site: string;
 }
 
 interface HomeProps {
@@ -30,25 +44,25 @@ interface HomeProps {
 
 const Home = (props: HomeProps) => {
     return (
-        <div>
+        <div className="home-container">
             <HomeBanner/>
-            <div style={{ padding: '50px', background: 'var(--bg)' }}>
-          <Swiper
-            modules={[Navigation, Pagination]}
-            spaceBetween={30}
-            slidesPerView={'auto'}
-            centeredSlides={true}
-            navigation
-            pagination={{ clickable: true }}
-          >
-            {props.movies?.map(movie => (
-              <SwiperSlide key={movie.id} style={{ width: 'auto' }}>
-                <MovieCard movie={movie} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-            
+            <div className="movies-section">
+              <Title level={2} className="section-title">📺 Популярные фильмы</Title>
+              <Swiper
+                modules={[Navigation, Pagination]}
+                spaceBetween={20}
+                slidesPerView={'auto'}
+                navigation
+                pagination={{ clickable: true }}
+                className="movies-swiper"
+              >
+                {props.movies?.map(movie => (
+                  <SwiperSlide key={movie.id} className="movie-slide">
+                    <MovieCard movie={movie} />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
         </div>
     )
 }
@@ -58,71 +72,91 @@ export default Home
 
 
 const MovieCard: React.FC<{ movie: MovieData }> = ({ movie }) => {
+  const [trailerModalOpen, setTrailerModalOpen] = useState(false);
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [loadingVideos, setLoadingVideos] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleTrailerClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (videos.length === 0 && !loadingVideos) {
+      setLoadingVideos(true);
+      fetch(`${API_BASE_URL}/movie/${movie.id}/videos${API_KEY}`)
+        .then(res => res.json())
+        .then(data => {
+          setVideos(data.results || []);
+          setTrailerModalOpen(true);
+          setLoadingVideos(false);
+        })
+        .catch(() => {
+          setLoadingVideos(false);
+        });
+    } else if (videos.length > 0) {
+      setTrailerModalOpen(true);
+    }
+  };
+
   return (
-    <Link to={`/watch/${movie.id}`} style={{ textDecoration: 'none', color: 'var(--accent)' }}>
-      <Card
-        hoverable
-        style={{ width: 320, borderRadius: 24, overflow: 'hidden', border: 'none', background: 'var(--card-bg)' }}
-        bodyStyle={{ padding: '24px', background: 'var(--card-bg)' }}
-        cover={
-          <div style={{ position: 'relative' }}>
-            {/* Основной постер */}
-            <img alt={movie.title} src={IMAGE_BASE_URL + movie.poster_path} style={{ width: '100%', height: 350, objectFit: 'cover' }} />
-
-            {/* Маленькое превью (Thumbnail) */}
-            <img
-              src={IMAGE_BASE_URL + movie.backdrop_path}
-              style={{
-                position: 'absolute',
-                bottom: -20,
-                left: 20,
-                width: 80,
-                height: 110,
-                borderRadius: 8,
-                border: '2px solid white',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
-              }}
+    <>
+      <TrailerModal 
+        visible={trailerModalOpen}
+        videos={videos}
+        onClose={() => setTrailerModalOpen(false)}
+        title={movie.title}
+      />
+      <Link to={`/watch/${movie.id}`} style={{ textDecoration: 'none' }} className="movie-card-link">
+        <div className="movie-card-wrapper"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div className="movie-poster-container">
+            <img 
+              alt={movie.title} 
+              src={IMAGE_BASE_URL + movie.poster_path} 
+              className="movie-poster"
             />
+            
+            <div className={`movie-overlay ${isHovered ? 'visible' : ''}`}>
+              <div className="overlay-content">
+                <PlayCircleFilled
+                  onClick={handleTrailerClick}
+                  className="trailer-btn"
+                />
+                <p className="trash-text">Нажми для трейлера</p>
+              </div>
+            </div>
 
-            {/* Кнопка Play */}
-            <PlayCircleFilled
-              style={{
-                position: 'absolute',
-                bottom: -20,
-                right: 20,
-                fontSize: 48,
-                color: '#eb2f96',
-                background: 'white',
-                borderRadius: '50%'
-              }}
-            />
+            {movie.vote_average && (
+              <div className="movie-rating">
+                {movie.vote_average.toFixed(1)}
+              </div>
+            )}
           </div>
-        }
-      >
-        <div style={{ marginTop: 20  }}>
-          <Title level={4} style={{ marginBottom: 4, color: 'var(--accent)' }}>{movie.title}</Title>
-          <Rate disabled defaultValue={5} style={{ fontSize: 12, color: 'var(--accent)' }} />
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
-            <div style={{ textAlign: 'center' }}>
-              <Text type="secondary" style={{ color: 'var(--accent)' }} >Release Date: </Text>
-              <Text strong style={{ color: 'var(--accent)' }}>{movie.release_date}</Text>
+          <div className="movie-info">
+            <h3 className="movie-title">{movie.title}</h3>
+            
+            <div className="movie-meta">
+              <span className="meta-item">
+                {movie.release_date?.slice(0, 4)}
+              </span>
+              <span className="meta-divider">•</span>
+              <span className="meta-item">
+                {movie.original_language?.toUpperCase()}
+              </span>
             </div>
-            <div style={{ textAlign: 'center' }}>   
-              <Text type="secondary" style={{ color: 'var(--accent)' }} >Lang: </Text>
-              <Text strong style={{ color: 'var(--accent)' }}>{movie.original_language}</Text>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <Text type="secondary" style={{ color: 'var(--accent)' }} >Rating: </Text>
-              <Text strong style={{ color: 'var(--accent)' }}>{movie.vote_average}</Text>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <Text type="secondary" style={{ color: 'var(--accent)' }} >Review: </Text>
-              <Text strong style={{ color: 'var(--accent)' }}>{movie.vote_count}</Text>
-            </div>
+
+            {movie.vote_average && (
+              <div className="movie-rating-bar">
+                <div 
+                  className="rating-fill"
+                  style={{ width: `${(movie.vote_average / 10) * 100}%` }}
+                />
+              </div>
+            )}
           </div>
         </div>
-      </Card>
-    </Link>
+      </Link>
+    </>
   );
 };

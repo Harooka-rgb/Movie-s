@@ -1,19 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Typography, Button, Space, Tag } from 'antd';
 import {
   PlayCircleFilled,
-  InfoCircleOutlined,
   StarFilled,
   ShareAltOutlined,
-  PlusOutlined,
   PlaySquareOutlined
 } from '@ant-design/icons';
 import './watch-movie.css';
 import { Bookmark } from 'lucide-react';
 import { API_BASE_URL, API_KEY, IMAGE_BASE_URL } from '../../../constants';
+import TrailerModal from '../../../components/trailer-modal/TrailerModal';
 
 const { Title, Text } = Typography;
+
+interface Video {
+  id: string;
+  key: string;
+  name: string;
+  type: string;
+  site: string;
+}
 
 const WatchMovie = () => {
   const { id } = useParams();
@@ -21,18 +28,26 @@ const WatchMovie = () => {
   // состояние для загрузки деталей фильма
   const [movieData, setMovieData] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [trailerModalOpen, setTrailerModalOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    fetch(`${API_BASE_URL}/movie/${id}${API_KEY}&language=ru-RU`)
-      .then(res => res.json())
-      .then(data => {
-        setMovieData(data);
+    
+    // Получаем основные данные о фильме и трейлеры параллельно
+    Promise.all([
+      fetch(`${API_BASE_URL}/movie/${id}${API_KEY}&language=ru-RU`).then(res => res.json()),
+      fetch(`${API_BASE_URL}/movie/${id}/videos${API_KEY}`).then(res => res.json())
+    ])
+      .then(([movieData, videosData]) => {
+        setMovieData(movieData);
+        setVideos(videosData.results || []);
         setLoading(false);
       })
       .catch(() => {
         setMovieData(null);
+        setVideos([]);
         setLoading(false);
       });
   }, [id]);
@@ -57,10 +72,17 @@ const WatchMovie = () => {
     <div className="watch-container" style={{ backgroundImage: `url(${bgImage})` }}>
       <div className="watch-overlay"></div>
 
+      <TrailerModal 
+        visible={trailerModalOpen}
+        videos={videos}
+        onClose={() => setTrailerModalOpen(false)}
+        title={movieData.title || movieData.name}
+      />
+
       <div className="watch-content">
         {/* Genres and meta */}
         <div className="meta-info">
-          {genres.map(genre => <span key={genre}>{genre}</span>)}
+          {genres.map((genre: string) => <span key={genre}>{genre}</span>)}
           {year && <><div className="dot" /><span>{year}</span></>}
           {duration && <><div className="dot" /><span>{duration}</span></>}
           <div className="dot" />
@@ -96,7 +118,7 @@ const WatchMovie = () => {
             Смотреть
           </Button>
 
-          <Button ghost size="large" icon={<PlaySquareOutlined />} style={{ background: 'rgba(255,255,255,0.04)' }}>
+          <Button ghost size="large" icon={<PlaySquareOutlined />} style={{ background: 'rgba(255,255,255,0.04)' }} onClick={() => setTrailerModalOpen(true)}>
             Трейлер
           </Button>
 

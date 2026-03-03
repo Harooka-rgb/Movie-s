@@ -1,36 +1,165 @@
 .hero-banner {
-  height: 80vh;
-  /* Экрандын 80% ээлейт */
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.9) 20%, transparent 100%),
-    url('https://1.bp.blogspot.com/-u9ZCKG9OA1Q/WYdqma6zoLI/AAAAAAAAALA/m5bNukpqTGIfWpPWXFpfLYU1pahJh_mGwCLcBGAs/w1200-h630-p-k-no-nu/IMG_20170807_012325.jpg');
-  /* Сүрөттүн дарегин коюңуз */
-  background-size: cover;
-  background-position: center;
+  height: 85vh;
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 0 10%;
+  padding: 0 60px;
   color: white;
+  overflow: hidden;
+}
+
+.banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(0, 0, 0, 0.7) 40%,
+    rgba(0, 0, 0, 0.4) 70%,
+    transparent 100%
+  );
+  z-index: 1;
+}
+
+.banner-particle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(229, 9, 20, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(229, 9, 20, 0.05) 0%, transparent 50%);
+  z-index: 1;
+  pointer-events: none;
 }
 
 .banner-content {
-  max-width: 500px;
+  max-width: 550px;
+  position: relative;
+  z-index: 2;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.banner-badge {
+  display: inline-block;
+  background: var(--accent);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
 }
 
 .banner-title {
-  font-size: 80px !important;
+  font-size: 72px !important;
   color: white !important;
   margin-bottom: 0 !important;
-  font-weight: 800 !important;
+  font-weight: 900 !important;
   letter-spacing: 2px;
+  line-height: 1.1;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+  animation: fadeInUp 0.8s ease-out 0.1s both;
 }
 
 .banner-meta {
   color: #ccc;
-  margin-bottom: 20px;
+  margin-bottom: 20px !important;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
 .banner-desc {
   color: #ddd;
   font-size: 18px;
-  margin-bottom: 30px;
+  margin-bottom: 30px !important;
+  line-height: 1.6;
+  max-width: 500px;
+  animation: fadeInUp 0.8s ease-out 0.3s both;
+}
+
+.banner-buttons {
+  display: flex;
+  gap: 20px !important;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.btn-watch {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: white !important;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 8px 40px !important;
+  height: auto;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(229, 9, 20, 0.4);
+}
+
+.btn-watch:hover {
+  background: #ff0a16 !important;
+  border-color: #ff0a16 !important;
+  transform: scale(1.05);
+  box-shadow: 0 6px 30px rgba(229, 9, 20, 0.6);
+}
+
+.btn-add {
+  border: 2px solid rgba(255, 255, 255, 0.6) !important;
+  color: white !important;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 8px 40px !important;
+  height: auto;
+  transition: all 0.3s ease;
+}
+
+.btn-add:hover {
+  border-color: white !important;
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .hero-banner {
+    height: 60vh;
+    padding: 0 30px;
+  }
+
+  .banner-title {
+    font-size: 48px !important;
+  }
+
+  .banner-desc {
+    font-size: 16px;
+  }
+
+  .banner-buttons {
+    flex-direction: column;
+  }
+
+  .btn-watch,
+  .btn-add {
+    width: 100%;
+  }
 }
